@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>首页 - Python练习项目</title>
+    <style>
+        /* ========== 全局样式重置 ========== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ========== 页面整体背景：紫蓝渐变（与登录/注册页完全一致） ========== */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-attachment: fixed;
+            color: #fff;
+            padding-bottom: 40px;
+        }
+
+        /* ========== 装饰性背景圆球 ========== */
+        .bg-circle {
+            position: fixed;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.08);
+            pointer-events: none;
+            z-index: 0;
+        }
+        .bg-circle.c1 { width: 400px; height: 400px; top: -150px; right: -100px; }
+        .bg-circle.c2 { width: 300px; height: 300px; bottom: -100px; left: -80px; }
+        .bg-circle.c3 { width: 200px; height: 200px; top: 40%; left: 60%; }
+
+        /* ========== 顶部导航栏：毛玻璃效果 ========== */
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 0 24px;
+        }
+        .navbar-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .nav-logo {
+            width: 38px;
+            height: 38px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .nav-logo svg { width: 22px; height: 22px; }
+        .nav-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #fff;
+        }
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 14px 6px 6px;
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+            color: #fff;
+        }
+        .user-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: #fff;
+        }
+        /* 退出登录按钮 */
+        .btn-logout {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .btn-logout:hover {
+            background: rgba(255, 107, 107, 0.3);
+            border-color: rgba(255, 107, 107, 0.5);
+            transform: translateY(-1px);
+        }
+        .btn-logout svg { width: 16px; height: 16px; }
+
+        /* ========== 主内容容器 ========== */
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 32px 24px 0;
+        }
+
+        /* ========== 欢迎横幅区 ========== */
+        .welcome-banner {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 20px;
+            padding: 32px;
+            margin-bottom: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+            animation: fadeInUp 0.6s ease-out;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .welcome-text h2 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .welcome-text h2 .highlight {
+            background: linear-gradient(135deg, #fff, #e0e7ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .welcome-text p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 15px;
+            line-height: 1.6;
+        }
+        .welcome-meta {
+            text-align: right;
+        }
+        .welcome-time {
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .welcome-date {
+            color: rgba(255, 255, 255, 0.75);
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        /* ========== 区块通用标题 ========== */
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        .section-title svg { width: 20px; height: 20px; }
+        .section-title .subtitle {
+            font-size: 13px;
+            font-weight: 400;
+            color: rgba(255, 255, 255, 0.65);
+            margin-left: 4px;
+        }
+
+        /* ========== 数据概览卡片区 ========== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 18px;
+            margin-bottom: 32px;
+        }
+        .stat-card {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 16px;
+            padding: 22px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .stat-card:hover {
+            transform: translateY(-4px);
+            background: rgba(255, 255, 255, 0.18);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+        .stat-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 14px;
+        }
+        .stat-icon svg { width: 22px; height: 22px; color: #fff; }
+        .stat-icon.c1 { background: linear-gradient(135deg, #667eea, #764ba2); }
+        .stat-icon.c2 { background: linear-gradient(135deg, #f093fb, #f5576c); }
+        .stat-icon.c3 { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+        .stat-icon.c4 { background: linear-gradient(135deg, #43e97b, #38f9d7); }
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .stat-label {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        .stat-trend {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            font-size: 12px;
+            margin-top: 8px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            background: rgba(76, 175, 80, 0.2);
+            color: #81c784;
+        }
+        .stat-trend svg { width: 12px; height: 12px; }
+
+        /* ========== 功能导航卡片区 ========== */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 18px;
+            margin-bottom: 32px;
+        }
+        .feature-card {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 16px;
+            padding: 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .feature-card:hover {
+            transform: translateY(-4px);
+            background: rgba(255, 255, 255, 0.18);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            border-color: rgba(255, 255, 255, 0.35);
+        }
+        .feature-card::after {
+            content: '';
+            position: absolute;
+            bottom: -40px;
+            right: -40px;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+        .feature-card:hover::after {
+            transform: scale(1.3);
+            background: rgba(255, 255, 255, 0.08);
+        }
+        .feature-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+            position: relative;
+            z-index: 1;
+        }
+        .feature-icon svg { width: 26px; height: 26px; color: #fff; }
+        .feature-icon.f1 { background: linear-gradient(135deg, #667eea, #764ba2); }
+        .feature-icon.f2 { background: linear-gradient(135deg, #f093fb, #f5576c); }
+        .feature-icon.f3 { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+        .feature-icon.f4 { background: linear-gradient(135deg, #43e97b, #38f9d7); }
+        .feature-icon.f5 { background: linear-gradient(135deg, #fa709a, #fee140); }
+        .feature-icon.f6 { background: linear-gradient(135deg, #a18cd1, #fbc2eb); }
+        .feature-title {
+            font-size: 17px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 1;
+        }
+        .feature-desc {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.6;
+            margin-bottom: 14px;
+            position: relative;
+            z-index: 1;
+        }
+        .feature-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 13px;
+            color: #fff;
+            font-weight: 500;
+            position: relative;
+            z-index: 1;
+        }
+        .feature-link svg { width: 14px; height: 14px; transition: transform 0.3s; }
+        .feature-card:hover .feature-link svg { transform: translateX(4px); }
+
+        /* ========== 学习进度 & 最近活动 双栏区 ========== */
+        .bottom-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+            margin-bottom: 32px;
+        }
+        .panel {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 16px;
+            padding: 24px;
+        }
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .panel-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        .panel-title svg { width: 18px; height: 18px; }
+        .panel-badge {
+            font-size: 12px;
+            padding: 3px 10px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.15);
+            color: rgba(255, 255, 255, 0.85);
+        }
+
+        /* 进度条样式 */
+        .progress-item {
+            margin-bottom: 18px;
+        }
+        .progress-item:last-child { margin-bottom: 0; }
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .progress-name {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        .progress-percent {
+            font-size: 13px;
+            font-weight: 600;
+            color: #fff;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            width: 0;
+            transition: width 1.2s ease-out;
+        }
+        .progress-fill.p2 { background: linear-gradient(90deg, #f093fb, #f5576c); }
+        .progress-fill.p3 { background: linear-gradient(90deg, #4facfe, #00f2fe); }
+        .progress-fill.p4 { background: linear-gradient(90deg, #43e97b, #38f9d7); }
+
+        /* 最近活动列表 */
+        .activity-list {
+            list-style: none;
+        }
+        .activity-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .activity-item:last-child { border-bottom: none; padding-bottom: 0; }
+        .activity-item:first-child { padding-top: 0; }
+        .activity-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-top: 5px;
+            flex-shrink: 0;
+        }
+        .activity-dot.d1 { background: #43e97b; }
+        .activity-dot.d2 { background: #4facfe; }
+        .activity-dot.d3 { background: #f5576c; }
+        .activity-dot.d4 { background: #fee140; }
+        .activity-content { flex: 1; }
+        .activity-text {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.5;
+        }
+        .activity-time {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.55);
+            margin-top: 3px;
+        }
+
+        /* ========== 页脚 ========== */
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: rgba(255, 255, 255, 0.55);
+            font-size: 13px;
+        }
+        .footer a {
+            color: rgba(255, 255, 255, 0.75);
+            text-decoration: none;
+        }
+        .footer a:hover { text-decoration: underline; }
+
+        /* ========== Toast 通知（与登录页完全一致） ========== */
+        .toast-container {
+            position: fixed;
+            top: 80px;
+            right: 24px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .toast {
+            min-width: 280px;
+            padding: 14px 18px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: #333;
+            animation: toastIn 0.3s ease-out;
+            border-left: 4px solid #667eea;
+        }
+        .toast.success { border-left-color: #4caf50; }
+        .toast.error { border-left-color: #ff6b6b; }
+        .toast.warning { border-left-color: #ff9800; }
+        .toast svg { width: 20px; height: 20px; flex-shrink: 0; }
+        .toast.success svg { color: #4caf50; }
+        .toast.error svg { color: #ff6b6b; }
+        .toast.warning svg { color: #ff9800; }
+        .toast.fade-out { animation: toastOut 0.3s ease-in forwards; }
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateX(100%); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes toastOut {
+            from { opacity: 1; transform: translateX(0); }
+            to { opacity: 0; transform: translateX(100%); }
+        }
+
+        /* ========== 退出确认弹窗 ========== */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.2s ease;
+        }
+        .modal-overlay.show { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .modal-box {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 28px;
+            max-width: 380px;
+            width: 90%;
+            text-align: center;
+            color: #333;
+            animation: modalIn 0.3s ease-out;
+        }
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.9) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .modal-icon {
+            width: 56px;
+            height: 56px;
+            margin: 0 auto 16px;
+            background: rgba(255, 107, 107, 0.15);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-icon svg { width: 28px; height: 28px; color: #ff6b6b; }
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        .modal-desc {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 22px;
+            line-height: 1.6;
+        }
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+        }
+        .modal-btn {
+            flex: 1;
+            padding: 11px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+        .modal-btn.cancel {
+            background: #f0f0f0;
+            color: #555;
+        }
+        .modal-btn.cancel:hover { background: #e4e4e4; }
+        .modal-btn.confirm {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a5a);
+            color: #fff;
+        }
+        .modal-btn.confirm:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(255,107,107,0.4); }
+
+        /* ========== 响应式适配 ========== */
+        @media (max-width: 768px) {
+            .bottom-grid { grid-template-columns: 1fr; }
+            .welcome-banner { padding: 24px; }
+            .welcome-text h2 { font-size: 22px; }
+            .welcome-time { font-size: 26px; }
+            .welcome-meta { text-align: left; }
+            .nav-title { display: none; }
+            .user-name { display: none; }
+            .container { padding: 20px 16px 0; }
+            .toast-container { top: 72px; right: 12px; left: 12px; }
+            .toast { min-width: auto; }
+        }
+    </style>
+</head>
+<body>
+    <!-- 装饰背景圆球 -->
+    <div class="bg-circle c1"></div>
+    <div class="bg-circle c2"></div>
+    <div class="bg-circle c3"></div>
+
+    <!-- Toast 容器 -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- 退出确认弹窗 -->
+    <div class="modal-overlay" id="logoutModal">
+        <div class="modal-box">
+            <div class="modal-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                    <polyline points="16 17 21 12 16 7"/>
+                    <line x1="21" y1="12" x2="9" y2="12"/>
+                </svg>
+            </div>
+            <div class="modal-title">确认退出登录？</div>
+            <div class="modal-desc">退出后需要重新登录才能访问首页，确定要继续吗？</div>
+            <div class="modal-actions">
+                <button class="modal-btn cancel" id="cancelLogout">取消</button>
+                <button class="modal-btn confirm" id="confirmLogout">确认退出</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 顶部导航栏 -->
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <div class="nav-left">
+                <div class="nav-logo">
+                    <!-- Python 蛇形 SVG 图标 -->
+                    <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2C8 2 6 4 6 7v3h6v1H4c-1.1 0-2 .9-2 2v4c0 1.1.9 2 2 2h2v2c0 1.1.9 2 2 2h4c1.1 0 2-.9 2-2v-3c0-1.1-.9-2-2-2H8v-1h8c1.1 0 2-.9 2-2V7c0-3-2-5-6-5z"/>
+                        <circle cx="9" cy="6" r="1" fill="white"/>
+                        <circle cx="15" cy="18" r="1" fill="white"/>
+                    </svg>
+                </div>
+                <span class="nav-title">Python 学习平台</span>
+            </div>
+            <div class="nav-right">
+                <!-- 用户信息 -->
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">A</div>
+                    <span class="user-name" id="userName">admin</span>
+                </div>
+                <!-- 退出登录按钮 -->
+                <button class="btn-logout" id="btnLogout" title="退出登录">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                        <polyline points="16 17 21 12 16 7"/>
+                        <line x1="21" y1="12" x2="9" y2="12"/>
+                    </svg>
+                    <span>退出</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主内容 -->
+    <div class="container">
+        <!-- 欢迎横幅 -->
+        <div class="welcome-banner">
+            <div class="welcome-text">
+                <h2>你好，<span class="highlight" id="welcomeName">admin</span> 👋</h2>
+                <p>欢迎回到 Python 学习平台，今天也要继续加油哦！<br>当前已连续学习 <strong id="streakDays">7</strong> 天，保持这个势头！</p>
+            </div>
+            <div class="welcome-meta">
+                <div class="welcome-time" id="currentTime">00:00:00</div>
+                <div class="welcome-date" id="currentDate">加载中...</div>
+            </div>
+        </div>
+
+        <!-- 数据概览区 -->
+        <div class="section-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="20" x2="18" y2="10"/>
+                <line x1="12" y1="20" x2="12" y2="4"/>
+                <line x1="6" y1="20" x2="6" y2="14"/>
+            </svg>
+            数据概览
+            <span class="subtitle">· 你的学习统计</span>
+        </div>
+        <div class="stats-grid">
+            <!-- 统计卡片1：学习时长 -->
+            <div class="stat-card">
+                <div class="stat-icon c1">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                </div>
+                <div class="stat-value" data-target="128">0</div>
+                <div class="stat-label">累计学习时长（小时）</div>
+                <div class="stat-trend">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+                    +12%
+                </div>
+            </div>
+            <!-- 统计卡片2：完成练习 -->
+            <div class="stat-card">
+                <div class="stat-icon c2">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                        <polyline points="22 4 12 14.01 9 11.01"/>
+                    </svg>
+                </div>
+                <div class="stat-value" data-target="56">0</div>
+                <div class="stat-label">完成练习题数</div>
+                <div class="stat-trend">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+                    +8%
+                </div>
+            </div>
+            <!-- 统计卡片3：代码行数 -->
+            <div class="stat-card">
+                <div class="stat-icon c3">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="16 18 22 12 16 6"/>
+                        <polyline points="8 6 2 12 8 18"/>
+                    </svg>
+                </div>
+                <div class="stat-value" data-target="3420">0</div>
+                <div class="stat-label">编写代码行数</div>
+                <div class="stat-trend">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+                    +25%
+                </div>
+            </div>
+            <!-- 统计卡片4：连续打卡 -->
+            <div class="stat-card">
+                <div class="stat-icon c4">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                    </svg>
+                </div>
+                <div class="stat-value" data-target="7">0</div>
+                <div class="stat-label">连续打卡天数</div>
+                <div class="stat-trend">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+                    继续保持
+                </div>
+            </div>
+        </div>
+
+        <!-- 功能导航区 -->
+        <div class="section-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="7" height="7"/>
+                <rect x="14" y="3" width="7" height="7"/>
+                <rect x="14" y="14" width="7" height="7"/>
+                <rect x="3" y="14" width="7" height="7"/>
+            </svg>
+            功能导航
+            <span class="subtitle">· 选择你想学习的模块</span>
+        </div>
+        <div class="features-grid">
+            <!-- 功能卡片1 -->
+            <div class="feature-card" data-feature="Python基础语法">
+                <div class="feature-icon f1">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="16 18 22 12 16 6"/>
+                        <polyline points="8 6 2 12 8 18"/>
+                    </svg>
+                </div>
+                <div class="feature-title">Python 基础语法</div>
+                <div class="feature-desc">变量、数据类型、条件判断、循环语句、函数定义等核心基础知识。</div>
+                <div class="feature-link">开始学习 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
+            </div>
+            <!-- 功能卡片2 -->
+            <div class="feature-card" data-feature="数据结构">
+                <div class="feature-icon f2">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <ellipse cx="12" cy="5" rx="9" ry="3"/>
+                        <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/>
+                        <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
+                    </svg>
+                </div>
+                <div class="feature-title">数据结构</div>
+                <div class="feature-desc">列表、元组、字典、集合的使用技巧，以及常见算法与复杂度分析。</div>
+                <div class="feature-link">开始学习 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
+            </div>
+            <!-- 功能卡片3 -->
+            <div class="feature-card" data-feature="Web开发">
+                <div class="feature-icon f3">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                        <line x1="8" y1="21" x2="16" y2="21"/>
+                        <line x1="12" y1="17" x2="12" y2="21"/>
+                    </svg>
+                </div>
+                <div class="feature-title">Web 开发</div>
+                <div class="feature-desc">使用 Flask / Django 框架搭建网站，路由、模板、表单处理全流程。</div>
+                <div class="feature-link">开始学习 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
+            </div>
+            <!-- 功能卡片4 -->
+            <div class="feature-card" data-feature="数据分析">
+                <div class="feature-icon f4">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="20" x2="18" y2="10"/>
+                        <line x1="12" y1="20" x2="12" y2="4"/>
+                        <line x1="6" y1="20" x2="6" y2="14"/>
+                    </svg>
+                </div>
+                <div class="feature-title">数据分析</div>
+                <div class="feature-desc">NumPy、Pandas 数据处理，Matplotlib 数据可视化，实战案例分析。</div>
+                <div class="feature-link">开始学习 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
+            </div>
+            <!-- 功能卡片5 -->
+            <div class="feature-card" data-feature="机器学习">
+                <div class="feature-icon f5">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2a10 10 0 1 0 10 10H12V2z"/>
+                        <path d="M12 2a10 10 0 0 1 10 10h-10V2z"/>
+                        <path d="M12 12l9-3-9-3v6z"/>
+                    </svg>
+                </div>
+                <div class="feature-title">机器学习</div>
+                <div class="feature-desc">Scikit-learn 入门，回归、分类、聚类算法原理与实战项目演练。</div>
+                <div class="feature-link">开始学习 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
+            </div>
+            <!-- 功能卡片6 -->
+            <div class="feature-card" data-feature="项目实战">
+                <div class="feature-icon f6">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                    </svg>
+                </div>
+                <div class="feature-title">项目实战</div>
+                <div class="feature-desc">爬虫、自动化脚本、小游戏、GUI应用等综合项目，边做边学巩固知识。</div>
+                <div class="feature-link">开始学习 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
+            </div>
+        </div>
+
+        <!-- 底部双栏：学习进度 + 最近活动 -->
+        <div class="bottom-grid">
+            <!-- 学习进度面板 -->
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                            <polyline points="22 4 12 14.01 9 11.01"/>
+                        </svg>
+                        学习进度
+                    </div>
+                    <span class="panel-badge">4 个模块</span>
+                </div>
+                <div class="progress-item">
+                    <div class="progress-info">
+                        <span class="progress-name">Python 基础语法</span>
+                        <span class="progress-percent">85%</span>
+                    </div>
+                    <div class="progress-bar"><div class="progress-fill" data-width="85"></div></div>
+                </div>
+                <div class="progress-item">
+                    <div class="progress-info">
+                        <span class="progress-name">数据结构</span>
+                        <span class="progress-percent">60%</span>
+                    </div>
+                    <div class="progress-bar"><div class="progress-fill p2" data-width="60"></div></div>
+                </div>
+                <div class="progress-item">
+                    <div class="progress-info">
+                        <span class="progress-name">Web 开发</span>
+                        <span class="progress-percent">35%</span>
+                    </div>
+                    <div class="progress-bar"><div class="progress-fill p3" data-width="35"></div></div>
+                </div>
+                <div class="progress-item">
+                    <div class="progress-info">
+                        <span class="progress-name">数据分析</span>
+                        <span class="progress-percent">20%</span>
+                    </div>
+                    <div class="progress-bar"><div class="progress-fill p4" data-width="20"></div></div>
+                </div>
+            </div>
+
+            <!-- 最近活动面板 -->
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"/>
+                            <polyline points="12 6 12 12 16 14"/>
+                        </svg>
+                        最近活动
+                    </div>
+                    <span class="panel-badge">实时更新</span>
+                </div>
+                <ul class="activity-list">
+                    <li class="activity-item">
+                        <div class="activity-dot d1"></div>
+                        <div class="activity-content">
+                            <div class="activity-text">完成了「列表推导式」练习题，获得 🌟🌟🌟 评价</div>
+                            <div class="activity-time">2 小时前</div>
+                        </div>
+                    </li>
+                    <li class="activity-item">
+                        <div class="activity-dot d2"></div>
+                        <div class="activity-content">
+                            <div class="activity-text">学习了「函数参数与返回值」章节，笔记已保存</div>
+                            <div class="activity-time">5 小时前</div>
+                        </div>
+                    </li>
+                    <li class="activity-item">
+                        <div class="activity-dot d3"></div>
+                        <div class="activity-content">
+                            <div class="activity-text">提交了「猜数字小游戏」项目代码，共 128 行</div>
+                            <div class="activity-time">昨天 20:30</div>
+                        </div>
+                    </li>
+                    <li class="activity-item">
+                        <div class="activity-dot d4"></div>
+                        <div class="activity-content">
+                            <div class="activity-text">连续打卡第 7 天，获得「坚持一周」徽章 🏆</div>
+                            <div class="activity-time">昨天 08:15</div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 页脚 -->
+        <div class="footer">
+            <p>© 2026 Python 学习平台 · 个人练习项目 · Powered by GitHub Pages</p>
+        </div>
+    </div>
+
+    <script>
+        /* ============================================================
+         *  Dashboard 首页核心逻辑
+         *  功能：
+         *    1. 登录态校验（未登录跳回 index.html）
+         *    2. 实时时钟显示
+         *    3. 数字计数动画
+         *    4. 进度条动画
+         *    5. 功能卡片点击提示
+         *    6. 退出登录（清除登录态 + 跳转登录页）
+         * ============================================================ */
+
+        // 获取页面元素
+        const userNameEl = document.getElementById('userName');
+        const userAvatarEl = document.getElementById('userAvatar');
+        const welcomeNameEl = document.getElementById('welcomeName');
+        const currentTimeEl = document.getElementById('currentTime');
+        const currentDateEl = document.getElementById('currentDate');
+        const btnLogout = document.getElementById('btnLogout');
+        const logoutModal = document.getElementById('logoutModal');
+        const cancelLogout = document.getElementById('cancelLogout');
+        const confirmLogout = document.getElementById('confirmLogout');
+        const toastContainer = document.getElementById('toastContainer');
+
+        /* ---------- 1. 登录态校验 ---------- */
+        // 页面加载时立即检查是否已登录
+        (function checkLogin() {
+            const isLoggedIn = sessionStorage.getItem('is_logged_in');
+            const currentUser = sessionStorage.getItem('current_user');
+
+            if (isLoggedIn !== 'true' || !currentUser) {
+                // 未登录，跳回登录页
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // 已登录，显示用户信息
+            userNameEl.textContent = currentUser;
+            welcomeNameEl.textContent = currentUser;
+            // 头像显示用户名首字母（大写）
+            userAvatarEl.textContent = currentUser.charAt(0).toUpperCase();
+        })();
+
+        /* ---------- 2. 实时时钟 ---------- */
+        function updateClock() {
+            const now = new Date();
+            // 格式化时间 HH:MM:SS
+            const h = String(now.getHours()).padStart(2, '0');
+            const m = String(now.getMinutes()).padStart(2, '0');
+            const s = String(now.getSeconds()).padStart(2, '0');
+            currentTimeEl.textContent = h + ':' + m + ':' + s;
+
+            // 格式化日期
+            const weekDays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+            const dateStr = now.getFullYear() + '年' + (now.getMonth() + 1) + '月' + now.getDate() + '日 ' + weekDays[now.getDay()];
+            currentDateEl.textContent = dateStr;
+        }
+        updateClock();                  // 立即执行一次
+        setInterval(updateClock, 1000); // 每秒更新
+
+        /* ---------- 3. 数字计数动画 ---------- */
+        // 页面加载后延迟一点再触发动画，让用户能看到效果
+        window.addEventListener('load', function () {
+            setTimeout(function () {
+                // 统计数字动画
+                document.querySelectorAll('.stat-value').forEach(function (el) {
+                    const target = parseInt(el.getAttribute('data-target'), 10);
+                    animateNumber(el, target, 1200);
+                });
+                // 进度条动画
+                document.querySelectorAll('.progress-fill').forEach(function (el) {
+                    const width = el.getAttribute('data-width');
+                    el.style.width = width + '%';
+                });
+            }, 300);
+        });
+
+        // 数字从 0 递增到 target 的动画函数
+        function animateNumber(el, target, duration) {
+            const startTime = performance.now();
+            function update(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                // easeOutQuart 缓动函数，让动画先快后慢更自然
+                const eased = 1 - Math.pow(1 - progress, 4);
+                const current = Math.floor(eased * target);
+                el.textContent = current.toLocaleString(); // 千分位格式化
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                } else {
+                    el.textContent = target.toLocaleString();
+                }
+            }
+            requestAnimationFrame(update);
+        }
+
+        /* ---------- 4. 功能卡片点击事件 ---------- */
+        document.querySelectorAll('.feature-card').forEach(function (card) {
+            card.addEventListener('click', function () {
+                const featureName = card.getAttribute('data-feature');
+                showToast('「' + featureName + '」模块正在建设中，敬请期待！', 'info');
+            });
+        });
+
+        /* ---------- 5. 退出登录逻辑 ---------- */
+        // 点击退出按钮 → 弹出确认框
+        btnLogout.addEventListener('click', function () {
+            logoutModal.classList.add('show');
+        });
+
+        // 取消退出 → 关闭弹窗
+        cancelLogout.addEventListener('click', function () {
+            logoutModal.classList.remove('show');
+        });
+
+        // 点击遮罩层也关闭弹窗
+        logoutModal.addEventListener('click', function (e) {
+            if (e.target === logoutModal) {
+                logoutModal.classList.remove('show');
+            }
+        });
+
+        // 确认退出 → 清除登录态并跳转
+        confirmLogout.addEventListener('click', function () {
+            // 清除 sessionStorage 中的登录信息
+            sessionStorage.removeItem('is_logged_in');
+            sessionStorage.removeItem('current_user');
+
+            logoutModal.classList.remove('show');
+            showToast('已安全退出，正在跳转登录页...', 'success');
+
+            // 延迟跳转，让用户看到提示
+            setTimeout(function () {
+                window.location.href = 'index.html';
+            }, 800);
+        });
+
+        /* ---------- 6. Toast 通知函数（与登录页完全一致） ---------- */
+        function showToast(message, type) {
+            type = type || 'info';
+            const toast = document.createElement('div');
+            toast.className = 'toast ' + type;
+
+            // 根据类型选择图标
+            let iconSvg = '';
+            if (type === 'success') {
+                iconSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>';
+            } else if (type === 'error') {
+                iconSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>';
+            } else if (type === 'warning') {
+                iconSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>';
+            } else {
+                iconSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>';
+            }
+
+            toast.innerHTML = iconSvg + '<span>' + message + '</span>';
+            toastContainer.appendChild(toast);
+
+            // 3 秒后自动消失
+            setTimeout(function () {
+                toast.classList.add('fade-out');
+                setTimeout(function () {
+                    if (toast.parentNode) toast.parentNode.removeChild(toast);
+                }, 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

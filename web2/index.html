@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录 - Python练习项目</title>
+    <style>
+        /* ========== 全局样式重置 ========== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ========== 页面整体背景：紫蓝渐变 ========== */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+
+        /* ========== 装饰性背景圆球（纯CSS，增加层次感） ========== */
+        .bg-circle {
+            position: fixed;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            pointer-events: none;
+        }
+        .bg-circle.c1 { width: 300px; height: 300px; top: -100px; left: -100px; }
+        .bg-circle.c2 { width: 200px; height: 200px; bottom: -50px; right: -50px; }
+        .bg-circle.c3 { width: 150px; height: 150px; top: 50%; right: 10%; }
+
+        /* ========== 登录卡片：毛玻璃效果 ========== */
+        .login-card {
+            position: relative;
+            width: 100%;
+            max-width: 420px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 40px 35px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            animation: cardIn 0.6s ease-out;
+        }
+
+        @keyframes cardIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ========== 卡片顶部 Logo 区域 ========== */
+        .logo-area {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .logo-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 15px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .logo-icon svg { width: 36px; height: 36px; }
+        .logo-area h1 {
+            color: #fff;
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+        .logo-area p {
+            color: rgba(255, 255, 255, 0.75);
+            font-size: 14px;
+        }
+
+        /* ========== 表单输入组 ========== */
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+        .form-group label {
+            display: block;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 14px;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .input-wrapper .input-icon {
+            position: absolute;
+            left: 14px;
+            width: 20px;
+            height: 20px;
+            color: rgba(255, 255, 255, 0.6);
+            pointer-events: none;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px 14px 12px 44px;
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 15px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        .form-group input::placeholder { color: rgba(255, 255, 255, 0.5); }
+        .form-group input:focus {
+            border-color: rgba(255, 255, 255, 0.6);
+            background: rgba(255, 255, 255, 0.18);
+        }
+        /* 密码显隐切换按钮 */
+        .toggle-pwd {
+            position: absolute;
+            right: 12px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: rgba(255, 255, 255, 0.6);
+            padding: 4px;
+            display: flex;
+            align-items: center;
+        }
+        .toggle-pwd:hover { color: #fff; }
+        .toggle-pwd svg { width: 20px; height: 20px; }
+
+        /* ========== 记住我 & 忘记密码 行 ========== */
+        .form-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            font-size: 13px;
+        }
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: rgba(255, 255, 255, 0.85);
+            cursor: pointer;
+            user-select: none;
+        }
+        .remember-me input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: #764ba2;
+            cursor: pointer;
+        }
+        .forgot-link {
+            color: rgba(255, 255, 255, 0.85);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .forgot-link:hover { color: #fff; text-decoration: underline; }
+
+        /* ========== 登录按钮 ========== */
+        .btn-login {
+            width: 100%;
+            padding: 13px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.55);
+        }
+        .btn-login:active { transform: translateY(0); }
+        .btn-login:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* ========== loading 旋转动画 ========== */
+        .spinner {
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ========== 表单错误抖动动画 ========== */
+        .shake { animation: shake 0.4s ease-in-out; }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-8px); }
+            40% { transform: translateX(8px); }
+            60% { transform: translateX(-6px); }
+            80% { transform: translateX(6px); }
+        }
+        .input-error { border-color: #ff6b6b !important; }
+
+        /* ========== 底部注册引导 ========== */
+        .footer-link {
+            text-align: center;
+            margin-top: 24px;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+        }
+        .footer-link a {
+            color: #fff;
+            font-weight: 600;
+            text-decoration: none;
+            margin-left: 4px;
+        }
+        .footer-link a:hover { text-decoration: underline; }
+
+        /* ========== Toast 通知（右上角弹出） ========== */
+        .toast-container {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .toast {
+            min-width: 280px;
+            padding: 14px 18px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: #333;
+            animation: toastIn 0.3s ease-out;
+            border-left: 4px solid #667eea;
+        }
+        .toast.success { border-left-color: #4caf50; }
+        .toast.error { border-left-color: #ff6b6b; }
+        .toast.warning { border-left-color: #ff9800; }
+        .toast svg { width: 20px; height: 20px; flex-shrink: 0; }
+        .toast.success svg { color: #4caf50; }
+        .toast.error svg { color: #ff6b6b; }
+        .toast.warning svg { color: #ff9800; }
+        .toast.fade-out { animation: toastOut 0.3s ease-in forwards; }
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateX(100%); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes toastOut {
+            from { opacity: 1; transform: translateX(0); }
+            to { opacity: 0; transform: translateX(100%); }
+        }
+
+        /* ========== 响应式适配 ========== */
+        @media (max-width: 480px) {
+            .login-card { padding: 30px 22px; }
+            .logo-area h1 { font-size: 20px; }
+            .toast-container { top: 12px; right: 12px; left: 12px; }
+            .toast { min-width: auto; }
+        }
+    </style>
+</head>
+<body>
+    <!-- 装饰背景圆球 -->
+    <div class="bg-circle c1"></div>
+    <div class="bg-circle c2"></div>
+    <div class="bg-circle c3"></div>
+
+    <!-- Toast 容器 -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- 登录卡片 -->
+    <div class="login-card" id="loginCard">
+        <!-- Logo 区域 -->
+        <div class="logo-area">
+            <div class="logo-icon">
+                <!-- Python 风格蛇形 SVG 图标 -->
+                <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2C8 2 6 4 6 7v3h6v1H4c-1.1 0-2 .9-2 2v4c0 1.1.9 2 2 2h2v2c0 1.1.9 2 2 2h4c1.1 0 2-.9 2-2v-3c0-1.1-.9-2-2-2H8v-1h8c1.1 0 2-.9 2-2V7c0-3-2-5-6-5z"/>
+                    <circle cx="9" cy="6" r="1" fill="white"/>
+                    <circle cx="15" cy="18" r="1" fill="white"/>
+                </svg>
+            </div>
+            <h1>欢迎回来</h1>
+            <p>登录你的 Python 练习账户</p>
+        </div>
+
+        <!-- 登录表单 -->
+        <form id="loginForm" autocomplete="off">
+            <!-- 用户名输入 -->
+            <div class="form-group">
+                <label for="username">用户名</label>
+                <div class="input-wrapper">
+                    <!-- 用户图标 SVG -->
+                    <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                    <input type="text" id="username" name="username" placeholder="请输入用户名" required>
+                </div>
+            </div>
+
+            <!-- 密码输入 -->
+            <div class="form-group">
+                <label for="password">密码</label>
+                <div class="input-wrapper">
+                    <!-- 锁图标 SVG -->
+                    <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                    </svg>
+                    <input type="password" id="password" name="password" placeholder="请输入密码" required>
+                    <!-- 密码显隐切换按钮 -->
+                    <button type="button" class="toggle-pwd" id="togglePwd" aria-label="显示/隐藏密码">
+                        <svg id="eyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 记住我 & 忘记密码 -->
+            <div class="form-options">
+                <label class="remember-me">
+                    <input type="checkbox" id="rememberMe">
+                    <span>记住用户名</span>
+                </label>
+                <a href="#" class="forgot-link" onclick="showToast('请联系管理员重置密码','warning');return false;">忘记密码？</a>
+            </div>
+
+            <!-- 登录按钮 -->
+            <button type="submit" class="btn-login" id="btnLogin">
+                <span id="btnText">登 录</span>
+            </button>
+        </form>
+
+        <!-- 底部注册引导 -->
+        <div class="footer-link">
+            还没有账户？<a href="register.html">立即注册</a>
+        </div>
+    </div>
+
+    <script>
+        /* ============================================================
+         *  登录页核心逻辑
+         *  说明：这是一个纯前端演示登录，测试账号 admin / 123456
+         *  登录成功后跳转到 dashboard.html 首页
+         * ============================================================ */
+
+        // 获取页面元素
+        const loginForm = document.getElementById('loginForm');
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        const rememberMeCheckbox = document.getElementById('rememberMe');
+        const togglePwdBtn = document.getElementById('togglePwd');
+        const eyeIcon = document.getElementById('eyeIcon');
+        const btnLogin = document.getElementById('btnLogin');
+        const btnText = document.getElementById('btnText');
+        const loginCard = document.getElementById('loginCard');
+        const toastContainer = document.getElementById('toastContainer');
+
+        // 测试账号（实际项目中应调用后端接口验证）
+        const VALID_USER = 'admin';
+        const VALID_PWD = '123456';
+
+        /* ---------- 页面加载时：读取记住的用户名 ---------- */
+        window.addEventListener('DOMContentLoaded', function () {
+            // 从 localStorage 读取之前记住的用户名
+            const savedUsername = localStorage.getItem('remembered_username');
+            if (savedUsername) {
+                usernameInput.value = savedUsername;
+                rememberMeCheckbox.checked = true;
+                // 自动聚焦到密码框
+                passwordInput.focus();
+            } else {
+                usernameInput.focus();
+            }
+        });
+
+        /* ---------- 密码显隐切换 ---------- */
+        togglePwdBtn.addEventListener('click', function () {
+            // 切换 input 的 type 属性
+            const isPwd = passwordInput.type === 'password';
+            passwordInput.type = isPwd ? 'text' : 'password';
+
+            // 切换眼睛图标（睁开 / 闭上）
+            if (isPwd) {
+                eyeIcon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>';
+            } else {
+                eyeIcon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+            }
+        });
+
+        /* ---------- 表单提交：登录逻辑 ---------- */
+        loginForm.addEventListener('submit', function (e) {
+            e.preventDefault(); // 阻止表单默认提交刷新页面
+
+            const username = usernameInput.value.trim();
+            const password = passwordInput.value.trim();
+
+            // 1. 前端校验：用户名不能为空
+            if (!username) {
+                showError(usernameInput, '请输入用户名');
+                return;
+            }
+            // 2. 前端校验：密码不能为空
+            if (!password) {
+                showError(passwordInput, '请输入密码');
+                return;
+            }
+
+            // 3. 显示 loading 状态（按钮变加载中，禁用点击）
+            setLoading(true);
+
+            // 4. 模拟网络请求延迟（实际项目中这里是 fetch / axios 调用后端）
+            setTimeout(function () {
+                // 5. 验证账号密码
+                if (username === VALID_USER && password === VALID_PWD) {
+                    // 登录成功
+                    handleLoginSuccess(username);
+                } else {
+                    // 登录失败
+                    handleLoginFail();
+                }
+                setLoading(false);
+            }, 800);
+        });
+
+        /* ---------- 登录成功处理 ---------- */
+        function handleLoginSuccess(username) {
+            // 1. 保存登录状态到 sessionStorage（关闭浏览器即失效，更安全）
+            sessionStorage.setItem('is_logged_in', 'true');
+            sessionStorage.setItem('current_user', username);
+
+            // 2. 如果勾选了"记住用户名"，保存到 localStorage（长期保留）
+            if (rememberMeCheckbox.checked) {
+                localStorage.setItem('remembered_username', username);
+            } else {
+                // 没勾选则清除之前记住的用户名
+                localStorage.removeItem('remembered_username');
+            }
+
+            // 3. 弹出成功提示
+            showToast('登录成功，正在跳转...', 'success');
+
+            // 4. 延迟跳转到首页 dashboard.html
+            setTimeout(function () {
+                window.location.href = 'dashboard.html';
+            }, 600);
+        }
+
+        /* ---------- 登录失败处理 ---------- */
+        function handleLoginFail() {
+            // 卡片抖动 + 输入框标红
+            loginCard.classList.add('shake');
+            usernameInput.classList.add('input-error');
+            passwordInput.classList.add('input-error');
+            showToast('用户名或密码错误，请重试', 'error');
+
+            // 抖动动画结束后移除 class
+            setTimeout(function () {
+                loginCard.classList.remove('shake');
+            }, 400);
+
+            // 用户重新输入时清除错误状态
+            const clearError = function () {
+                usernameInput.classList.remove('input-error');
+                passwordInput.classList.remove('input-error');
+            };
+            usernameInput.addEventListener('input', clearError, { once: true });
+            passwordInput.addEventListener('input', clearError, { once: true });
+        }
+
+        /* ---------- 输入框错误提示（抖动 + Toast） ---------- */
+        function showError(inputEl, message) {
+            inputEl.classList.add('input-error');
+            loginCard.classList.add('shake');
+            showToast(message, 'warning');
+            inputEl.focus();
+            setTimeout(function () { loginCard.classList.remove('shake'); }, 400);
+            inputEl.addEventListener('input', function () {
+                inputEl.classList.remove('input-error');
+            }, { once: true });
+        }
+
+        /* ---------- 按钮 loading 状态切换 ---------- */
+        function setLoading(loading) {
+            if (loading) {
+                btnLogin.disabled = true;
+                btnText.innerHTML = '<span class="spinner"></span> 登录中...';
+                btnText.style.display = 'flex';
+                btnText.style.alignItems = 'center';
+                btnText.style.gap = '8px';
+            } else {
+                btnLogin.disabled = false;
+                btnText.textContent = '登 录';
+            }
+        }
+
+        /* ---------- Toast 通知函数 ---------- */
+        function showToast(message, type) {
+            type = type || 'info'; // 默认 info 类型
+            const toast = document.createElement('div');
+            toast.className = 'toast ' + type;
+
+            // 根据类型选择不同图标
+            let iconSvg = '';
+            if (type === 'success') {
+                iconSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>';
+            } else if (type === 'error') {
+                iconSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>';
+            } else if (type === 'warning') {
+                iconSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>';
+            } else {
+                iconSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>';
+            }
+
+            toast.innerHTML = iconSvg + '<span>' + message + '</span>';
+            toastContainer.appendChild(toast);
+
+            // 3 秒后自动消失
+            setTimeout(function () {
+                toast.classList.add('fade-out');
+                setTimeout(function () {
+                    if (toast.parentNode) toast.parentNode.removeChild(toast);
+                }, 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
