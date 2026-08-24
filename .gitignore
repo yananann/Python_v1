@@ -1,0 +1,13 @@
+# 虚拟环境
+.venv/
+
+# PyCharm配置
+.idea/
+
+# Python缓存
+__pycache__/
+*.pyc
+
+
+#密码配置，不上传
+db/config.py
