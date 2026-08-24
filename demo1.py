@@ -1,5 +1,4 @@
 # 导入数据库连接函数
-import prinf
 
 from db.mysql_conn import test_mysql
 # 执行mysql连接测试
