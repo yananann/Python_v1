@@ -23,11 +23,13 @@ jobs:
 
       - name: Configure Pages
         uses: actions/configure-pages@v4
+        with:
+          enablement: true
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v4
         with:
-          path: ./web2
+          path: ./web
 
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v4
