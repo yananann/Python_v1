@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>账户注册</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+                         "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            position: relative;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(30, 60, 114, 0.65) 0%, rgba(42, 82, 152, 0.55) 100%);
+            z-index: 0;
+        }
+
+        .register-container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 420px;
+            margin: 0 20px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 36px 32px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3),
+                        0 0 0 1px rgba(255, 255, 255, 0.1);
+            animation: fadeInUp 0.6s ease-out;
+            backdrop-filter: blur(10px);
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .register-header {
+            text-align: center;
+            margin-bottom: 26px;
+        }
+
+        .register-avatar {
+            width: 66px;
+            height: 66px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 14px;
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .register-avatar svg {
+            width: 30px;
+            height: 30px;
+            fill: white;
+        }
+
+        .register-title {
+            font-size: 23px;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 4px;
+        }
+
+        .register-subtitle {
+            font-size: 13px;
+            color: #718096;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+            position: relative;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: #4a5568;
+            margin-bottom: 6px;
+            transition: color 0.3s ease;
+        }
+
+        .form-group:focus-within .form-label {
+            color: #667eea;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 18px;
+            height: 18px;
+            fill: #a0aec0;
+            transition: fill 0.3s ease;
+            pointer-events: none;
+        }
+
+        .form-group:focus-within .input-icon {
+            fill: #667eea;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 11px 44px 11px 44px;
+            font-size: 14px;
+            color: #2d3748;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            outline: none;
+            background-color: #f7fafc;
+            transition: border-color 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .form-input:focus {
+            border-color: #667eea;
+            background-color: #ffffff;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+        }
+
+        .form-input.error {
+            border-color: #fc8181;
+            background-color: #fff5f5;
+        }
+
+        .form-input.error:focus {
+            box-shadow: 0 0 0 3px rgba(252, 129, 129, 0.15);
+        }
+
+        /* 验证码输入框：右边留位置给按钮 */
+        .code-input {
+            padding-right: 130px;
+        }
+
+        /* 获取验证码按钮 */
+        .code-btn {
+            position: absolute;
+            right: 6px;
+            top: 50%;
+            transform: translateY(-50%);
+            padding: 7px 12px;
+            font-size: 12px;
+            font-weight: 500;
+            color: #667eea;
+            background-color: transparent;
+            border: 1px solid #667eea;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .code-btn:hover:not(:disabled) {
+            background-color: #667eea;
+            color: white;
+        }
+
+        .code-btn:disabled {
+            color: #a0aec0;
+            border-color: #cbd5e0;
+            cursor: not-allowed;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: background-color 0.2s ease;
+        }
+
+        .toggle-password:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        .toggle-password svg {
+            width: 20px;
+            height: 20px;
+            fill: #a0aec0;
+        }
+
+        .error-message {
+            color: #e53e3e;
+            font-size: 12px;
+            margin-top: 4px;
+            display: none;
+            animation: shake 0.4s ease-in-out;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .form-group.shake .input-wrapper {
+            animation: shake 0.4s ease-in-out;
+        }
+
+        .pwd-strength {
+            font-size: 12px;
+            margin-top: 4px;
+        }
+        .str-weak { color: #e53e3e; }
+        .str-mid { color: #d69e2e; }
+        .str-strong { color: #38a169; }
+
+        .register-btn {
+            width: 100%;
+            padding: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            color: white;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            position: relative;
+            white-space: nowrap;
+            margin-top: 4px;
+        }
+
+        .register-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        .register-btn:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .register-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .register-btn.loading .btn-text {
+            visibility: hidden;
+        }
+
+        .register-btn.loading::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            top: 50%;
+            left: 50%;
+            margin-left: -10px;
+            margin-top: -10px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+            color: #a0aec0;
+            font-size: 12px;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background-color: #e2e8f0;
+        }
+
+        .divider span {
+            padding: 0 12px;
+        }
+
+        .back-login-btn {
+            width: 100%;
+            padding: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #667eea;
+            background-color: transparent;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .back-login-btn:hover {
+            background-color: #667eea;
+            color: white;
+        }
+
+        .toast {
+            position: fixed;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            padding: 14px 24px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            color: white;
+            z-index: 9999;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            opacity: 0;
+            max-width: 90%;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        .toast.success {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+        }
+
+        .toast.error {
+            background: linear-gradient(135deg, #fc8181 0%, #f56565 100%);
+        }
+
+        .toast.info {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        @media (max-width: 480px) {
+            .register-container {
+                padding: 28px 22px;
+                border-radius: 16px;
+            }
+            .register-title {
+                font-size: 20px;
+            }
+            .register-avatar {
+                width: 58px;
+                height: 58px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="toast" class="toast"></div>
+
+    <div class="register-container">
+        <div class="register-header">
+            <div class="register-avatar">
+                <svg viewBox="0 0 24 24">
+                    <path d="M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                </svg>
+            </div>
+            <h1 class="register-title">创建账户</h1>
+            <p class="register-subtitle">完成注册开启使用</p>
+        </div>
+
+        <form id="registerForm" onsubmit="return handleRegister(event)">
+            <!-- 用户名 -->
+            <div class="form-group" id="usernameGroup">
+                <label class="form-label" for="regUsername">用户名</label>
+                <div class="input-wrapper">
+                    <svg class="input-icon" viewBox="0 0 24 24">
+                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                    </svg>
+                    <input type="text" id="regUsername" class="form-input"
+                           placeholder="用户名至少2位字符" autocomplete="off"
+                           oninput="clearError('regUsername')">
+                </div>
+                <div class="error-message" id="regUsernameError">用户名至少2个字符</div>
+            </div>
+
+            <!-- 邮箱 -->
+            <div class="form-group" id="emailGroup">
+                <label class="form-label" for="regEmail">邮箱</label>
+                <div class="input-wrapper">
+                    <svg class="input-icon" viewBox="0 0 24 24">
+                        <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+                    </svg>
+                    <input type="email" id="regEmail" class="form-input"
+                           placeholder="请输入邮箱地址" autocomplete="off"
+                           oninput="clearError('regEmail')">
+                </div>
+                <div class="error-message" id="regEmailError">请输入正确的邮箱地址</div>
+            </div>
+
+            <!-- 验证码 -->
+            <div class="form-group" id="codeGroup">
+                <label class="form-label" for="regCode">邮箱验证码</label>
+                <div class="input-wrapper">
+                    <svg class="input-icon" viewBox="0 0 24 24">
+                        <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
+                    </svg>
+                    <input type="text" id="regCode" class="form-input code-input"
+                           placeholder="请输入6位验证码" maxlength="6" autocomplete="off"
+                           oninput="clearError('regCode')">
+                    <button type="button" class="code-btn" id="codeBtn" onclick="sendCode()">
+                        获取验证码
+                    </button>
+                </div>
+                <div class="error-message" id="regCodeError">验证码不正确或已过期</div>
+            </div>
+
+            <!-- 密码 -->
+            <div class="form-group" id="pwdGroup">
+                <label class="form-label" for="regPwd">密码</label>
+                <div class="input-wrapper">
+                    <svg class="input-icon" viewBox="0 0 24 24">
+                        <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
+                    </svg>
+                    <input type="password" id="regPwd" class="form-input"
+                           placeholder="密码至少6位"
+                           oninput="clearError('regPwd');checkPwdStrength()">
+                    <button type="button" class="toggle-password" onclick="togglePwd('regPwd','eyeReg1')">
+                        <svg id="eyeReg1" viewBox="0 0 24 24">
+                            <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="pwd-strength" id="strengthTip"></div>
+                <div class="error-message" id="regPwdError">密码不能少于6位</div>
+            </div>
+
+            <!-- 确认密码 -->
+            <div class="form-group" id="pwd2Group">
+                <label class="form-label" for="regPwd2">确认密码</label>
+                <div class="input-wrapper">
+                    <svg class="input-icon" viewBox="0 0 24 24">
+                        <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
+                    </svg>
+                    <input type="password" id="regPwd2" class="form-input"
+                           placeholder="再次输入密码"
+                           oninput="clearError('regPwd2')">
+                    <button type="button" class="toggle-password" onclick="togglePwd('regPwd2','eyeReg2')">
+                        <svg id="eyeReg2" viewBox="0 0 24 24">
+                            <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="error-message" id="regPwd2Error">两次输入密码不一致</div>
+            </div>
+
+            <button type="submit" class="register-btn" id="regBtn">
+                <span class="btn-text">完成注册</span>
+            </button>
+
+            <div class="divider">
+                <span>已有账户？</span>
+            </div>
+
+            <button type="button" class="back-login-btn" onclick="location.href='index.html'">
+                返回登录
+            </button>
+        </form>
+    </div>
+
+    <script>
+        // 全局变量：存储当前生成的验证码和过期时间
+        let currentCode = '';
+        let codeExpireTime = 0;
+        let countdownTimer = null;
+
+        // 邮箱格式校验正则
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        // 切换密码显示/隐藏
+        function togglePwd(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.innerHTML = '<path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/>';
+            } else {
+                input.type = 'password';
+                icon.innerHTML = '<path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>';
+            }
+        }
+
+        // 密码强度检测
+        function checkPwdStrength() {
+            const pwd = document.getElementById('regPwd').value;
+            const tipDom = document.getElementById('strengthTip');
+            if (pwd.length === 0) {
+                tipDom.textContent = '';
+                return;
+            }
+            let score = 0;
+            if (pwd.length >= 6) score++;
+            if (/[A-Z]/.test(pwd)) score++;
+            if (/[0-9]/.test(pwd)) score++;
+            if (/[^A-Za-z0-9]/.test(pwd)) score++;
+
+            if (score <= 2) {
+                tipDom.textContent = '🔒 密码强度：弱';
+                tipDom.className = 'pwd-strength str-weak';
+            } else if (score === 3) {
+                tipDom.textContent = '🔒 密码强度：中等';
+                tipDom.className = 'pwd-strength str-mid';
+            } else {
+                tipDom.textContent = '🔒 密码强度：强';
+                tipDom.className = 'pwd-strength str-strong';
+            }
+        }
+
+        // 发送验证码（模拟）
+        function sendCode() {
+            const email = document.getElementById('regEmail').value.trim();
+            const codeBtn = document.getElementById('codeBtn');
+
+            // 先校验邮箱格式
+            if (!emailRegex.test(email)) {
+                showError('regEmail', '请输入正确的邮箱地址');
+                showToast('请先填写正确的邮箱', 'error');
+                return;
+            }
+
+            // 生成6位随机验证码
+            currentCode = Math.floor(100000 + Math.random() * 900000).toString();
+            // 验证码5分钟后过期
+            codeExpireTime = Date.now() + 5 * 60 * 1000;
+
+            // 模拟发送：用Toast提示验证码（真实场景这里应该请求后端发邮件）
+            showToast('验证码已发送至 ' + email + '，模拟验证码：' + currentCode, 'success');
+
+            // 按钮进入60秒倒计时
+            let countdown = 60;
+            codeBtn.disabled = true;
+            codeBtn.textContent = countdown + 's 后重发';
+            countdownTimer = setInterval(() => {
+                countdown--;
+                if (countdown <= 0) {
+                    clearInterval(countdownTimer);
+                    codeBtn.disabled = false;
+                    codeBtn.textContent = '获取验证码';
+                } else {
+                    codeBtn.textContent = countdown + 's 后重发';
+                }
+            }, 1000);
+        }
+
+        // 清除错误状态
+        function clearError(fieldName) {
+            const input = document.getElementById(fieldName);
+            const errMsg = document.getElementById(fieldName + 'Error');
+            const group = document.getElementById(fieldName + 'Group');
+            if (input) input.classList.remove('error');
+            if (errMsg) errMsg.classList.remove('show');
+            if (group) group.classList.remove('shake');
+        }
+
+        // 显示错误状态
+        function showError(fieldName, msg) {
+            const input = document.getElementById(fieldName);
+            const errMsg = document.getElementById(fieldName + 'Error');
+            const group = document.getElementById(fieldName + 'Group');
+            input.classList.add('error');
+            if (msg) errMsg.textContent = msg;
+            errMsg.classList.add('show');
+            group.classList.remove('shake');
+            void group.offsetWidth;
+            group.classList.add('shake');
+        }
+
+        // 表单校验
+        function validateRegister() {
+            const username = document.getElementById('regUsername').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const code = document.getElementById('regCode').value.trim();
+            const p1 = document.getElementById('regPwd').value;
+            const p2 = document.getElementById('regPwd2').value;
+            let ok = true;
+
+            if (username.length < 2) {
+                showError('regUsername', '用户名至少2个字符');
+                ok = false;
+            }
+            if (!emailRegex.test(email)) {
+                showError('regEmail', '请输入正确的邮箱地址');
+                ok = false;
+            }
+            // 校验验证码
+            if (!currentCode) {
+                showError('regCode', '请先获取验证码');
+                ok = false;
+            } else if (Date.now() > codeExpireTime) {
+                showError('regCode', '验证码已过期，请重新获取');
+                ok = false;
+            } else if (code !== currentCode) {
+                showError('regCode', '验证码不正确');
+                ok = false;
+            }
+            if (p1.length < 6) {
+                showError('regPwd', '密码不能少于6位');
+                ok = false;
+            }
+            if (p1 !== p2) {
+                showError('regPwd2', '两次输入密码不一致');
+                ok = false;
+            }
+            return ok;
+        }
+
+        // 处理注册提交
+        function handleRegister(event) {
+            event.preventDefault();
+            if (!validateRegister()) {
+                showToast('请检查表单填写', 'error');
+                return false;
+            }
+            const username = document.getElementById('regUsername').value.trim();
+            const regBtn = document.getElementById('regBtn');
+            regBtn.classList.add('loading');
+            regBtn.disabled = true;
+
+            setTimeout(() => {
+                // 注册成功，保存用户名到localStorage，登录页自动回填
+                localStorage.setItem('remembered_username', username);
+                showToast('注册成功，即将跳转登录页', 'success');
+                setTimeout(() => {
+                    location.href = 'index.html';
+                }, 800);
+                regBtn.classList.remove('loading');
+                regBtn.disabled = false;
+            }, 1500);
+            return false;
+        }
+
+        // Toast提示
+        function showToast(message, type) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast ' + type;
+            void toast.offsetWidth;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3500);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <!-- 视口设置：让页面在手机上也能正常显示（响应式必备） -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户登录</title>
+    <style>
+        /* ============================================
+           全局样式重置
+           作用：清除浏览器默认的外边距、内边距，统一盒模型
+           ============================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            /* box-sizing: border-box 让 padding 和 border 不会撑大盒子宽度 */
+            box-sizing: border-box;
+        }
+
+        /* ============================================
+           页面整体背景
+           作用：使用背景图 + 渐变遮罩，营造层次感
+           如果有自己的背景图，把 url() 里的地址换成你的图片路径即可
+           例如：url('./images/bg.jpg')
+           ============================================ */
+        body {
+            /* 最小高度占满整个浏览器窗口 */
+            min-height: 100vh;
+            /* 使用弹性布局，让登录卡片水平垂直居中 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* 字体：优先系统字体，保证各平台显示一致 */
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+                         "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            /* 背景图：使用一张在线风景图作为背景 */
+            background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80');
+            /* 背景图覆盖整个屏幕，不变形 */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            /* 背景固定，滚动时不动 */
+            background-attachment: fixed;
+            /* 相对定位，方便后面的渐变遮罩覆盖在背景图上 */
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 背景渐变遮罩层
+           作用：在背景图上盖一层半透明渐变，让文字更清晰，同时更有设计感 */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* 线性渐变：从左上深蓝色到右下紫色，半透明 */
+            background: linear-gradient(135deg, rgba(30, 60, 114, 0.65) 0%, rgba(42, 82, 152, 0.55) 100%);
+            /* 确保遮罩在背景图之上、内容之下 */
+            z-index: 0;
+        }
+
+        /* ============================================
+           登录卡片容器
+           作用：白色半透明卡片，承载登录表单
+           ============================================ */
+        .login-container {
+            /* 相对定位，让卡片在遮罩层之上 */
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            /* 最大宽度 400px，大屏幕上不会太宽 */
+            max-width: 400px;
+            /* 左右留 20px 边距，手机上不会贴边 */
+            margin: 0 20px;
+            /* 白色半透明背景 */
+            background: rgba(255, 255, 255, 0.95);
+            /* 圆角 */
+            border-radius: 20px;
+            /* 内边距：上下 40px，左右 35px */
+            padding: 40px 35px;
+            /* 盒子阴影：让卡片有悬浮感 */
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3),
+                        0 0 0 1px rgba(255, 255, 255, 0.1);
+            /* 入场动画：从下方淡入上移 */
+            animation: fadeInUp 0.6s ease-out;
+            /* 背景模糊效果（毛玻璃感），部分浏览器支持 */
+            backdrop-filter: blur(10px);
+        }
+
+        /* 入场动画关键帧
+           作用：定义卡片从透明、下移 30px 到正常显示的过程 */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ============================================
+           登录标题区域
+           ============================================ */
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        /* 头像/图标圆圈 */
+        .login-avatar {
+            width: 70px;
+            height: 70px;
+            /* 圆形 */
+            border-radius: 50%;
+            /* 渐变背景 */
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            /* 弹性布局居中图标 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 15px;
+            /* 阴影 */
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        /* 头像里的图标（用 SVG） */
+        .login-avatar svg {
+            width: 32px;
+            height: 32px;
+            /* 白色图标 */
+            fill: white;
+        }
+
+        .login-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 5px;
+        }
+
+        .login-subtitle {
+            font-size: 14px;
+            color: #718096;
+        }
+
+        /* ============================================
+           表单输入框区域
+           ============================================ */
+        .form-group {
+            margin-bottom: 20px;
+            /* 相对定位，方便放图标和密码切换按钮 */
+            position: relative;
+        }
+
+        /* 输入框标签 */
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: #4a5568;
+            margin-bottom: 6px;
+            /* 标签稍微左移的过渡动画 */
+            transition: color 0.3s ease;
+        }
+
+        /* 输入框获得焦点时，标签变蓝 */
+        .form-group:focus-within .form-label {
+            color: #667eea;
+        }
+
+        /* 输入框包裹层：用于放左侧图标 */
+        .input-wrapper {
+            position: relative;
+        }
+
+        /* 左侧图标 */
+        .input-icon {
+            position: absolute;
+            left: 14px;
+            /* 垂直居中 */
+            top: 50%;
+            transform: translateY(-50%);
+            width: 18px;
+            height: 18px;
+            /* 灰色图标 */
+            fill: #a0aec0;
+            /* 图标颜色过渡 */
+            transition: fill 0.3s ease;
+            /* 让图标不阻挡输入框点击 */
+            pointer-events: none;
+        }
+
+        /* 输入框获得焦点时，图标变蓝 */
+        .form-group:focus-within .input-icon {
+            fill: #667eea;
+        }
+
+        /* 输入框本身 */
+        .form-input {
+            width: 100%;
+            /* 内边距：上下 12px，左边 44px（给图标留位置），右边 44px（给密码切换留位置） */
+            padding: 12px 44px 12px 44px;
+            font-size: 15px;
+            color: #2d3748;
+            /* 浅灰边框 */
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            /* 去掉默认的蓝色外框 */
+            outline: none;
+            /* 背景色 */
+            background-color: #f7fafc;
+            /* 过渡动画：边框颜色、背景色、阴影变化都有动画 */
+            transition: border-color 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        /* 输入框获得焦点时的样式 */
+        .form-input:focus {
+            border-color: #667eea;
+            background-color: #ffffff;
+            /* 外发光阴影 */
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+        }
+
+        /* 输入框校验错误时的样式 */
+        .form-input.error {
+            border-color: #fc8181;
+            background-color: #fff5f5;
+        }
+
+        .form-input.error:focus {
+            box-shadow: 0 0 0 3px rgba(252, 129, 129, 0.15);
+        }
+
+        /* 密码显示/隐藏切换按钮 */
+        .toggle-password {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            /* 去掉按钮默认样式 */
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+            /* 圆角 */
+            border-radius: 4px;
+            /* 过渡动画 */
+            transition: background-color 0.2s ease;
+        }
+
+        .toggle-password:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        .toggle-password svg {
+            width: 20px;
+            height: 20px;
+            fill: #a0aec0;
+        }
+
+        /* 错误提示文字 */
+        .error-message {
+            color: #e53e3e;
+            font-size: 12px;
+            margin-top: 5px;
+            /* 默认隐藏 */
+            display: none;
+            /* 淡入动画 */
+            animation: shake 0.4s ease-in-out;
+        }
+
+        /* 错误提示显示时 */
+        .error-message.show {
+            display: block;
+        }
+
+        /* 抖动动画：校验错误时输入框轻微抖动 */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .form-group.shake .input-wrapper {
+            animation: shake 0.4s ease-in-out;
+        }
+
+        /* ============================================
+           记住我 & 忘记密码 行
+           ============================================ */
+        .form-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            font-size: 13px;
+        }
+
+        /* 自定义复选框容器 */
+        .checkbox-wrapper {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            /* 禁止选中文字 */
+            user-select: none;
+        }
+
+        /* 隐藏原生复选框 */
+        .checkbox-wrapper input[type="checkbox"] {
+            display: none;
+        }
+
+        /* 自定义复选框外观 */
+        .checkbox-custom {
+            width: 16px;
+            height: 16px;
+            border: 2px solid #cbd5e0;
+            border-radius: 4px;
+            margin-right: 7px;
+            /* 相对定位，方便放对勾 */
+            position: relative;
+            transition: all 0.2s ease;
+        }
+
+        /* 复选框选中时 */
+        .checkbox-wrapper input[type="checkbox"]:checked + .checkbox-custom {
+            background-color: #667eea;
+            border-color: #667eea;
+        }
+
+        /* 选中时显示对勾（用 CSS 画） */
+        .checkbox-wrapper input[type="checkbox"]:checked + .checkbox-custom::after {
+            content: '';
+            position: absolute;
+            left: 4px;
+            top: 1px;
+            width: 5px;
+            height: 9px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+
+        .checkbox-label {
+            color: #4a5568;
+        }
+
+        /* 忘记密码链接 */
+        .forgot-link {
+            color: #667eea;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .forgot-link:hover {
+            color: #5a67d8;
+            text-decoration: underline;
+        }
+
+        /* ============================================
+           登录按钮
+           ============================================ */
+        .login-btn {
+            width: 100%;
+            padding: 13px;
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+            /* 渐变背景 */
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            /* 过渡动画 */
+            transition: all 0.3s ease;
+            /* 阴影 */
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            /* 相对定位，方便 loading 动画 */
+            position: relative;
+            /* 禁止文字换行 */
+            white-space: nowrap;
+        }
+
+        /* 鼠标悬停时 */
+        .login-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        /* 鼠标按下时 */
+        .login-btn:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        /* 按钮禁用状态（加载中） */
+        .login-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        /* 按钮加载中的文字隐藏 */
+        .login-btn.loading .btn-text {
+            visibility: hidden;
+        }
+
+        /* 加载动画圆圈 */
+        .login-btn.loading::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            top: 50%;
+            left: 50%;
+            margin-left: -10px;
+            margin-top: -10px;
+            /* 圆形边框，只有顶部有颜色，形成旋转效果 */
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            /* 旋转动画 */
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ============================================
+           分割线 & 注册区域
+           ============================================ */
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 25px 0;
+            color: #a0aec0;
+            font-size: 12px;
+        }
+
+        /* 分割线左右两条线 */
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background-color: #e2e8f0;
+        }
+
+        .divider span {
+            padding: 0 12px;
+        }
+
+        /* 注册按钮 */
+        .register-btn {
+            width: 100%;
+            padding: 11px;
+            font-size: 15px;
+            font-weight: 500;
+            color: #667eea;
+            background-color: transparent;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .register-btn:hover {
+            background-color: #667eea;
+            color: white;
+        }
+
+        /* ============================================
+           Toast 提示框（成功/失败提示）
+           作用：登录成功或失败时，在页面顶部弹出提示
+           ============================================ */
+        .toast {
+            position: fixed;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            padding: 14px 24px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            color: white;
+            /* 确保在最上层 */
+            z-index: 9999;
+            /* 阴影 */
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            /* 过渡动画 */
+            transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            /* 默认不显示 */
+            opacity: 0;
+            /* 最大宽度，防止太宽 */
+            max-width: 90%;
+        }
+
+        /* Toast 显示时 */
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        /* 成功提示：绿色 */
+        .toast.success {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+        }
+
+        /* 失败提示：红色 */
+        .toast.error {
+            background: linear-gradient(135deg, #fc8181 0%, #f56565 100%);
+        }
+
+        /* 信息提示：蓝色 */
+        .toast.info {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        /* ============================================
+           响应式适配：手机屏幕
+           作用：当屏幕宽度小于等于 480px 时，调整卡片样式
+           ============================================ */
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 30px 25px;
+                border-radius: 16px;
+            }
+
+            .login-title {
+                font-size: 20px;
+            }
+
+            .login-avatar {
+                width: 60px;
+                height: 60px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Toast 提示框：用于显示登录成功/失败等消息 -->
+    <div id="toast" class="toast"></div>
+
+    <!-- 登录卡片主容器 -->
+    <div class="login-container">
+
+        <!-- 顶部标题区域：头像图标 + 标题 + 副标题 -->
+        <div class="login-header">
+            <div class="login-avatar">
+                <!-- 用户图标 SVG -->
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                </svg>
+            </div>
+            <h1 class="login-title">欢迎回来</h1>
+            <p class="login-subtitle">请登录您的账户</p>
+        </div>
+
+        <!-- 登录表单 -->
+        <!-- onsubmit 事件：点击登录按钮或按回车时触发，return false 阻止表单默认提交（因为是纯前端模拟） -->
+        <form id="loginForm" onsubmit="return handleLogin(event)">
+
+            <!-- 用户名输入框 -->
+            <div class="form-group" id="usernameGroup">
+                <label class="form-label" for="username">用户名</label>
+                <div class="input-wrapper">
+                    <!-- 用户图标 -->
+                    <svg class="input-icon" viewBox="0 0 24 24">
+                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                    </svg>
+                    <!-- 用户名输入框：autocomplete="username" 让浏览器记住用户名；oninput 在输入时实时清除错误提示 -->
+                    <input type="text"
+                           id="username"
+                           class="form-input"
+                           placeholder="请输入用户名"
+                           autocomplete="username"
+                           oninput="clearError('username')">
+                </div>
+                <!-- 用户名错误提示（默认隐藏） -->
+                <div class="error-message" id="usernameError">请输入用户名（至少2个字符）</div>
+            </div>
+
+            <!-- 密码输入框 -->
+            <div class="form-group" id="passwordGroup">
+                <label class="form-label" for="password">密码</label>
+                <div class="input-wrapper">
+                    <!-- 锁图标 -->
+                    <svg class="input-icon" viewBox="0 0 24 24">
+                        <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
+                    </svg>
+                    <!-- 密码输入框：autocomplete="current-password" 让浏览器记住密码 -->
+                    <input type="password"
+                           id="password"
+                           class="form-input"
+                           placeholder="请输入密码"
+                           autocomplete="current-password"
+                           oninput="clearError('password')">
+                    <!-- 密码显示/隐藏切换按钮 -->
+                    <button type="button" class="toggle-password" onclick="togglePassword()" aria-label="显示/隐藏密码">
+                        <!-- 眼睛图标（默认显示，表示当前密码是隐藏状态，点击可显示） -->
+                        <svg id="eyeIcon" viewBox="0 0 24 24">
+                            <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+                        </svg>
+                    </button>
+                </div>
+                <!-- 密码错误提示（默认隐藏） -->
+                <div class="error-message" id="passwordError">请输入密码（至少6个字符）</div>
+            </div>
+
+            <!-- 记住我 & 忘记密码 -->
+            <div class="form-options">
+                <!-- 自定义复选框：记住用户名 -->
+                <label class="checkbox-wrapper">
+                    <input type="checkbox" id="rememberMe">
+                    <span class="checkbox-custom"></span>
+                    <span class="checkbox-label">记住用户名</span>
+                </label>
+                <!-- 忘记密码链接（纯前端，点击弹出提示） -->
+                <a href="#" class="forgot-link" onclick="showToast('请联系管理员重置密码', 'info'); return false;">忘记密码？</a>
+            </div>
+
+            <!-- 登录按钮 -->
+            <button type="submit" class="login-btn" id="loginBtn">
+                <span class="btn-text">登 录</span>
+            </button>
+
+            <!-- 分割线 -->
+            <div class="divider">
+                <span>还没有账户？</span>
+            </div>
+
+            <!-- 注册按钮（纯前端模拟，点击弹出提示） -->
+            <button type="button" class="register-btn" onclick="location.href='register.html'">
+                立即注册
+            </button>
+
+
+        </form>
+    </div>
+
+    <script>
+        /* ============================================
+           JavaScript 交互逻辑
+           说明：以下代码全部是纯前端模拟，不依赖任何后端
+           ============================================ */
+
+        // 页面加载完成后执行
+        document.addEventListener('DOMContentLoaded', function() {
+            // 从 localStorage 读取之前记住的用户名
+            // localStorage 是浏览器提供的本地存储，数据会一直保存在浏览器中
+            var savedUsername = localStorage.getItem('remembered_username');
+            if (savedUsername) {
+                // 如果有保存的用户名，自动填入输入框
+                document.getElementById('username').value = savedUsername;
+                // 同时勾选"记住用户名"复选框
+                document.getElementById('rememberMe').checked = true;
+            }
+        });
+
+        /**
+         * 切换密码显示/隐藏
+         * 作用：点击眼睛图标时，密码在明文和密文之间切换
+         */
+        function togglePassword() {
+            var passwordInput = document.getElementById('password');
+            var eyeIcon = document.getElementById('eyeIcon');
+
+            // 如果当前是密码类型（隐藏状态），切换为文本类型（显示状态）
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                // 切换为"眼睛带斜线"图标（表示当前是明文显示）
+                eyeIcon.innerHTML = '<path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/>';
+            } else {
+                // 否则切换回密码类型（隐藏状态）
+                passwordInput.type = 'password';
+                // 切换回普通眼睛图标
+                eyeIcon.innerHTML = '<path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>';
+            }
+        }
+
+        /**
+         * 清除指定输入框的错误状态
+         * @param {string} fieldName - 输入框名称（'username' 或 'password'）
+         * 作用：用户开始输入时，自动清除之前的错误提示
+         */
+        function clearError(fieldName) {
+            var input = document.getElementById(fieldName);
+            var errorMsg = document.getElementById(fieldName + 'Error');
+            var group = document.getElementById(fieldName + 'Group');
+
+            // 移除错误样式
+            input.classList.remove('error');
+            // 隐藏错误提示文字
+            errorMsg.classList.remove('show');
+            // 移除抖动动画类
+            group.classList.remove('shake');
+        }
+
+        /**
+         * 显示错误状态
+         * @param {string} fieldName - 输入框名称
+         * @param {string} message - 错误提示文字（可选，不传则用默认的）
+         */
+        function showError(fieldName, message) {
+            var input = document.getElementById(fieldName);
+            var errorMsg = document.getElementById(fieldName + 'Error');
+            var group = document.getElementById(fieldName + 'Group');
+
+            // 添加错误样式
+            input.classList.add('error');
+            // 如果传了自定义错误信息，就更新提示文字
+            if (message) {
+                errorMsg.textContent = message;
+            }
+            // 显示错误提示
+            errorMsg.classList.add('show');
+            // 添加抖动动画（先移除再添加，确保每次都能触发动画）
+            group.classList.remove('shake');
+            // 触发浏览器重绘，让动画重新播放
+            void group.offsetWidth;
+            group.classList.add('shake');
+        }
+
+        /**
+         * 表单校验
+         * @returns {boolean} 校验通过返回 true，否则返回 false
+         */
+        function validateForm() {
+            var username = document.getElementById('username').value.trim();
+            var password = document.getElementById('password').value;
+            var isValid = true;
+
+            // 校验用户名：不能为空，至少2个字符
+            if (username === '') {
+                showError('username', '请输入用户名');
+                isValid = false;
+            } else if (username.length < 2) {
+                showError('username', '用户名至少需要2个字符');
+                isValid = false;
+            }
+
+            // 校验密码：不能为空，至少6个字符
+            if (password === '') {
+                showError('password', '请输入密码');
+                isValid = false;
+            } else if (password.length < 6) {
+                showError('password', '密码至少需要6个字符');
+                isValid = false;
+            }
+
+            return isValid;
+        }
+
+        /**
+         * 处理登录提交
+         * @param {Event} event - 表单提交事件对象
+         * @returns {boolean} 始终返回 false，阻止表单默认提交行为
+         *
+         * 说明：这是纯前端模拟登录，实际项目中应该发送请求到后端验证
+         */
+        function handleLogin(event) {
+            // 阻止表单默认的提交刷新行为
+            event.preventDefault();
+
+            // 先进行表单校验
+            if (!validateForm()) {
+                // 校验不通过，显示错误提示
+                showToast('请检查输入信息', 'error');
+                return false;
+            }
+
+            // 获取输入的用户名和密码
+            var username = document.getElementById('username').value.trim();
+            var password = document.getElementById('password').value;
+            var rememberMe = document.getElementById('rememberMe').checked;
+
+            // 获取登录按钮，进入加载状态
+            var loginBtn = document.getElementById('loginBtn');
+            loginBtn.classList.add('loading');
+            loginBtn.disabled = true;
+
+            // 模拟网络请求延迟（1.5秒），实际项目中这里应该是 fetch 请求
+            setTimeout(function() {
+                // ========== 模拟登录逻辑 ==========
+                // 这里用简单的规则模拟：用户名 admin，密码 123456 视为登录成功
+                // 实际项目中应该由后端验证账号密码
+                if (username === 'admin' && password === '123456') {
+                    // 登录成功
+                    showToast('登录成功！欢迎回来，' + username, 'success');
+
+                    // 如果勾选了"记住用户名"，保存到 localStorage
+                    if (rememberMe) {
+                        localStorage.setItem('remembered_username', username);
+                    } else {
+                        // 没勾选就删除之前保存的
+                        localStorage.removeItem('remembered_username');
+                    }
+
+                    // 登录成功后可以跳转到其他页面，这里只是模拟
+                    // window.location.href = 'dashboard.html';
+                } else {
+                    // 登录失败
+                    showToast('用户名或密码错误，请重试', 'error');
+                    // 密码框清空并聚焦
+                    var passwordInput = document.getElementById('password');
+                    passwordInput.value = '';
+                    passwordInput.focus();
+                    // 给密码框添加错误样式
+                    showError('password', '用户名或密码错误');
+                }
+
+                // 恢复按钮状态：移除加载动画，启用按钮
+                loginBtn.classList.remove('loading');
+                loginBtn.disabled = false;
+            }, 1500);
+
+            return false;
+        }
+
+        /**
+         * 显示 Toast 提示框
+         * @param {string} message - 提示文字
+         * @param {string} type - 提示类型：'success'（成功）、'error'（失败）、'info'（信息）
+         *
+         * 说明：Toast 会在页面顶部弹出，3秒后自动消失
+         */
+        function showToast(message, type) {
+            var toast = document.getElementById('toast');
+
+            // 设置提示文字
+            toast.textContent = message;
+            // 先移除所有类型类名，再添加当前类型
+            toast.className = 'toast ' + type;
+
+            // 强制浏览器重绘（确保动画能重新播放）
+            void toast.offsetWidth;
+
+            // 添加 show 类，触发滑入动画
+            toast.classList.add('show');
+
+            // 3秒后自动隐藏
+            setTimeout(function() {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
