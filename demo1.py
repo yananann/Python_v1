@@ -1,3 +1,4 @@
+import random
 from db.mysql_conn import test_mysql
 test_mysql() # 执行 mysql 连接测试
 # ==================== string字符串格式化 ====================
@@ -86,3 +87,5 @@ def show_python_datatype():
 # show_python_datatype() # 调用（不调用函数内部代码不会执行）
 
 
+num1 = random.randint(0,2)
+print (num1)
