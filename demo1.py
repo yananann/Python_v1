@@ -6,7 +6,7 @@ def string_demo():
     age = 1
     name1 = "yanan"
     print(f"{age:06.2f}")
-    print(f"我是{name1},今年{age1}") # f‑string直接嵌入变量
+    print(f"我是{name1},今年{age}") # f‑string直接嵌入变量
     print(f"{3 * 5}") # f‑string大括号内支持直接写运算表达式
     # f‑string多行文本格式化，三引号
     text = f"""
