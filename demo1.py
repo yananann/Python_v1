@@ -17,6 +17,7 @@ def string_demo():
 # string_demo()  # 取消注释即可运行
 
 
+
 def show_python_datatype():
     # int 整数：正负数字，没有小数
     a = 10
@@ -83,3 +84,5 @@ def show_python_datatype():
     # 如果想看输出，打开下面注释运行
     # print(locals())
 # show_python_datatype() # 调用（不调用函数内部代码不会执行）
+
+
