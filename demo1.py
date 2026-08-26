@@ -1,6 +1,10 @@
 import random
+from turtledemo.chaos import line
+
 from db.mysql_conn import test_mysql
 test_mysql() # 执行 mysql 连接测试
+
+"""
 # ==================== string字符串格式化 ====================
 def string_demo():
     # 方式一：f‑string格式化(Python3.6+ 推荐，简洁直观)
@@ -9,16 +13,11 @@ def string_demo():
     print(f"{age:06.2f}")
     print(f"我是{name1},今年{age}") # f‑string直接嵌入变量
     print(f"{3 * 5}") # f‑string大括号内支持直接写运算表达式
-    # f‑string多行文本格式化，三引号
-    text = f"""
-            年龄：{1}
-            编号：{1:07.2f}
-            """
     print(text)
 # string_demo()  # 取消注释即可运行
+"""
 
-
-
+"""
 def show_python_datatype():
     # int 整数：正负数字，没有小数
     a = 10
@@ -85,7 +84,87 @@ def show_python_datatype():
     # 如果想看输出，打开下面注释运行
     # print(locals())
 # show_python_datatype() # 调用（不调用函数内部代码不会执行）
-
-
 num1 = random.randint(0,2)
 print (num1)
+"""
+
+"""
+for i in 'Python':  # 第一个实例
+    print("当前字母: %s" % letter)
+
+fruits = ['banana', 'apple', 'mango']
+for i in fruits:  # 第二个实例
+    print('当前水果: %s' % fruit)
+"""
+
+"""
+# 打印正方形
+j=0 # 打印5行
+while j<5:
+    i=0 # 打印1行
+    while i<5:
+        print("* ",end="")
+        i+=1
+    print() #一行结束用print自带换行
+    j+=1
+"""
+
+"""
+# 打印三角形
+j=0 # 打印5行
+while j<5:
+    i=0 # 打印1行
+    while i<j+1: # i<=j
+        print("* ",end="")
+        i+=1
+    print() #一行结束用print自带换行
+    j+=1
+
+# for循环实现打印三角形
+for j in range(5):       # j控制行数，一共5行 0,1,2,3,4
+    for i in range(j+1): # 每行打印 j+1 个星号
+        print("* ", end="")
+    print()
+    
+range(起始,结束,步长)
+range(5)   # 0,1,2,3,4
+range(2,6)  # 2,3,4,5
+range(1,10,2) # 1,3,5,7,9
+range(5,0,-1) # 5,4,3,2,1 负数步长倒着数           
+"""
+
+# 九九乘法表
+"""
+for i in range(1, 10):
+    for j in range(1, i + 1):
+        print(f"{j}×{i}={i*j}", end="\t")
+    print()
+"""
+
+"""
+j=1 # 行数
+while j<=9:
+    i = 1 #每行i个
+    while i < j+1:
+        print(f"{i}×{j}={i*j}", end="\t")
+        i += 1
+    print()
+    j+=1
+"""
+
+"""
+# 倒序九九乘法表
+j = 9
+while j >= 1:
+    i = 1
+    while i <= j:
+        print(f"{i}×{j}={i*j}", end="\t")
+        i += 1
+    print()
+    j -= 1
+"""
+
+for i in range(1, 10):
+    for j in range(1, i + 1):
+        print(f"{i}×{j}={i * j}", end="\t")
+    print()
