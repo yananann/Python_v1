@@ -216,9 +216,9 @@ list_data = ["张三", "李四", "王五"]
 res_join1 = ",".join(list_data)
 print("join用逗号拼接:", res_join1)  # 张三,李四,王五
 
-# 用空格拼接
-res_join2 = " ".join(list_data)
-print("join用空格拼接:", res_join2) # 张三 李四 王五
+# 用.拼接
+res_join2 = "......".join(list_data)
+print("join用...拼接:", res_join2) # 张三 李四 王五
 
 # 空字符串拼接，直接连在一起
 res_join3 = "".join(list_data)
@@ -232,3 +232,101 @@ text = "小明|小红|小刚"
 lst = text.split("|")
 new_text = "-".join(lst)
 print("split+join组合结果：", new_text) # 小明-小红-小刚
+
+
+# ========== 1. upper() / lower() 大小写转换 ==========
+# upper()：全部转大写；lower()：全部转小写
+s = "Hello Python"
+res_upper = s.upper()
+res_lower = s.lower()
+print("upper大写：", res_upper)   # HELLO PYTHON
+print("lower小写：", res_lower)   # hello python
+
+# capitalize() 首字母大写，其余小写
+res_cap = s.capitalize()
+print("capitalize首字母大写：", res_cap)  # Hello python
+
+# title() 每个单词首字母大写
+res_title = s.title()
+print("title每个单词首字母大写：", res_title) # Hello Python
+print("-"*50)
+
+
+# ========== 2. strip() / lstrip() / rstrip() 去除首尾空白 ==========
+# strip()：去掉左右两边空格、换行、tab
+# lstrip()：只去左边；rstrip()：只去右边
+s2 = "   你好世界   \n"
+res_strip = s2.strip()
+print("strip去首尾空白：", repr(res_strip)) # repr可以看见看不见的换行空格
+print("原字符串：", repr(s2))
+
+# 还可以指定要删除的字符
+s2_2 = "***abc***"
+print(s2_2.strip("*")) # abc
+print("-"*50)
+
+
+# ========== 3. find() / index() 查找子串位置 ==========
+# find：找到返回下标，找不到返回 -1
+# index：找到返回下标，找不到直接报错！
+s3 = "I like python"
+pos1 = s3.find("like")
+print("find位置：", pos1) # 2
+pos2 = s3.find("java")
+print("find找不到返回：", pos2) # -1
+
+# pos3 = s3.index("java") # 找不到会报错，慎用
+print("-"*50)
+
+
+# ========== 4. count() 统计子串出现次数 ==========
+s4 = "苹果香蕉苹果橘子苹果"
+cnt = s4.count("苹果")
+print("count统计次数：", cnt) # 3
+print("-"*50)
+
+
+# ========== 5. startswith() / endswith() 判断开头结尾，返回布尔True/False ==========
+s5 = "hello.txt"
+print("是否以hello开头：", s5.startswith("hello")) # True
+print("是否以.txt结尾：", s5.endswith(".txt"))     # True
+print("-"*50)
+
+
+# ========== 6. is系列判断：isalpha、isdigit、isalnum ==========
+# isalpha() 是否全部是字母汉字
+# isdigit() 是否全部是数字
+# isalnum() 是否字母+数字
+print("'abc'.isalpha()", 'abc'.isalpha())      # True
+print("'123'.isdigit()", '123'.isdigit())      # True
+print("'a123'.isalnum()", 'a123'.isalnum())    # True
+print("-"*50)
+
+
+# ========== 7. format() 字符串格式化 ==========
+name = "小明"
+age = 18
+text = "姓名：{}，年龄：{}".format(name, age)
+print("format格式化：", text) # 姓名：小明，年龄：18
+
+# f-string（更常用，Python3.6+）
+text2 = f"姓名：{name}，年龄：{age}"
+print("f-string：", text2)
+print("-"*50)
+
+
+# ========== 8. zfill() 补零，做编号很常用 ==========
+num_str = "5"
+print(num_str.zfill(3)) # 005，总长度3，左边补0
+print("-"*50)
+
+
+# ========== 9. 之前学过的回顾 replace split join ==========
+s_old = "a,b,c"
+s_rep = s_old.replace("a", "A")   # 替换
+lst = s_old.split(",")            # 字符串切列表
+s_new = "-".join(lst)             # 列表拼接字符串
+print("replace:", s_rep)
+print("split:", lst)
+print("join:", s_new)
+
