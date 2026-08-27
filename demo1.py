@@ -169,3 +169,66 @@ for i in range(1, 10):
         print(f"{i}×{j}={i * j}", end="\t")
     print()
 """
+
+# ===================== 1. str.replace(old, new[, count]) 替换 =====================
+# 作用：把字符串中的 old子串 替换成 new子串，count可选，代表替换前count个
+# 返回：替换后的新字符串，原字符串不变
+
+s1 = "苹果,香蕉,苹果,橘子"
+# 将"苹果"替换成"西瓜"
+res_replace1 = s1.replace("苹果", "西瓜")
+print("replace全部替换:", res_replace1)  # 西瓜,香蕉,西瓜,橘子
+
+# 只替换前1个"苹果"
+res_replace2 = s1.replace("苹果", "西瓜", 1)
+print("replace只替换1个:", res_replace2) # 西瓜,香蕉,苹果,橘子
+
+print("原字符串s1不变：", s1)
+print("-" * 60)
+
+
+# ===================== 2. str.split(sep=None, maxsplit=-1) 分割 =====================
+# 作用：按照分隔符sep把字符串切割，返回**列表list**
+# sep：分隔符；maxsplit：最大分割次数，-1代表全部分割
+s2 = "张三,李四,王五,赵六"
+
+# 按逗号分割
+res_split1 = s2.split(",")
+print("split按逗号分割:", res_split1)  # ['张三', '李四', '王五', '赵六']
+
+# 只分割2次
+res_split2 = s2.split(",", maxsplit=2)
+print("split最多分割2次:", res_split2) # ['张三', '李四', '王五,赵六']
+
+# 不传sep，默认按任意空白（空格、换行、tab）分割
+s2_2 = "a b   c\nd"
+res_split3 = s2_2.split()
+print("split不带参数(切空白):", res_split3) # ['a', 'b', 'c', 'd']
+print("-" * 60)
+
+
+# ===================== 3. str.join(iterable) 拼接 =====================
+# 作用：用【当前字符串】作为连接符，把列表/元组里面所有元素拼接成一个大字符串
+# 注意：列表里面必须全部是字符串类型，不能是数字！
+list_data = ["张三", "李四", "王五"]
+
+# 用逗号作为连接符，把列表拼起来
+res_join1 = ",".join(list_data)
+print("join用逗号拼接:", res_join1)  # 张三,李四,王五
+
+# 用空格拼接
+res_join2 = " ".join(list_data)
+print("join用空格拼接:", res_join2) # 张三 李四 王五
+
+# 空字符串拼接，直接连在一起
+res_join3 = "".join(list_data)
+print("join空字符直接相连:", res_join3) # 张三李四王五
+
+print("-" * 60)
+
+# ========== 经典组合示例：split + join 配合使用 ==========
+text = "小明|小红|小刚"
+# 分割成列表，再换分隔符拼接
+lst = text.split("|")
+new_text = "-".join(lst)
+print("split+join组合结果：", new_text) # 小明-小红-小刚
