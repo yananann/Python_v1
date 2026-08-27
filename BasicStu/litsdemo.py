@@ -1,6 +1,7 @@
 # ===================== Python列表 list [] 完整笔记 =====================
 # 1.列表应用场景：存储多个有序数据，可存放不同类型，支持增删改查
 # 2.列表格式：变量 = [元素1, 元素2, 元素3]
+import random
 
 # 定义列表
 my_list = ["张三", "李四", 20, 3.14, True]
@@ -137,3 +138,15 @@ print("嵌套列表整体：", student)
 print("取外层第一个列表：", student[0])
 print("取小明年龄：", student[0][1])      # 外层下标[0]，内层下标[1]
 
+teacher=["李","王","哇","的","额","发","就"]
+offices=[[],[],[]]
+for name in teacher:
+    num = random.randint(0, 2)
+    offices[num].append(name)
+print(offices)
+nub=1
+for i in offices:
+    print(f'{nub}人数为：{len(i)}')
+    for name in i:
+        print(f'名字：{name}')
+    nub+=1
