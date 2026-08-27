@@ -17,18 +17,42 @@ print("index查找元素下标：", my_list.index("李四"))
 list2 = [1,2,2,3,2]
 print("count统计元素次数：", list2.count(2))
 
-# -------- 增加元素 --------
+# -------- 增加元素 append / extend / insert --------
+# append(数据)：整体当做1个元素，追加到末尾
+# extend(可迭代对象)：拆开内容，逐个追加到末尾
+# insert(下标,数据)：指定下标位置插入，原元素后移
+
+# append示例
 append_list = [10,20]
-append_list.append(30)                   # append：末尾追加1个元素
-print("append末尾追加：", append_list)
+append_list.append(30)
+print("append加数字：", append_list)        # [10, 20, 30]
 
+list_e = [1,2]
+list_e.append("abc")
+print("append加字符串：", list_e)           # [1, 2, 'abc']
+
+list_a = [10,20]
+list_a.append([30,40])
+print("append加列表(产生嵌套)：", list_a)   # [10, 20, [30, 40]]
+
+print("-"*40)
+
+# extend示例
 extend_list = [1,2]
-extend_list.extend([3,4,5])              # extend：追加一组数据
-print("extend扩展列表：", extend_list)
+extend_list.extend([3,4,5])
+print("extend加列表：", extend_list)        # [1, 2, 3, 4, 5]
 
+list_d = [1,2]
+list_d.extend("abc")
+print("extend加字符串(拆成字符)：", list_d)  # [1, 2, 'a', 'b', 'c']
+
+print("-"*40)
+
+# insert示例
 insert_list = [10,20,30]
-insert_list.insert(1,99)                 # insert(下标,值)：指定位置插入
-print("insert指定下标插入：", insert_list)
+insert_list.insert(1,99)
+print("insert下标1插入99：", insert_list)   # [10, 99, 20, 30]
+
 
 # -------- 修改元素 --------
 change_list = [100,200,300]
