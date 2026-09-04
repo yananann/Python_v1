@@ -3,6 +3,9 @@
 # for：遍历循环，遍历字符串、列表、range，自动迭代，不需要手动写计数器自增
 # print(xxx, end="")  # print默认换行，end="" 取消换行
 # print()             # 空print，只输出换行
+from calendar import day_abbr
+
+import match
 
 # ===================== 1. for循环遍历字符串、列表 =====================
 # for 变量 in 可迭代对象: 依次取出里面每一个元素
@@ -87,3 +90,20 @@ for i in range(9, 0, -1):
     for j in range(1, i + 1):
         print(f"{j}×{i}={i*j}", end="\t")
     print()
+
+day = input("输入1-7:")
+match day:
+    case "1":
+        print(1)
+    case "2":
+        print(2)
+    case "3":
+        print(3)
+    case "4":
+        print(4)
+    case "5":
+        print(5)
+    case "6 | 7":
+        print(6,7)
+    case _:
+        print("错误")
