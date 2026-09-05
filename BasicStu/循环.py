@@ -107,3 +107,31 @@ match day:
         print(6,7)
     case _:
         print("错误")
+
+
+def calc_guard():
+    num1 = input("数字1：")
+    op = input("运算符 + - * /：")
+    num2 = input("数字2：")
+    try:
+        a = float(num1)
+        b = float(num2)
+    except ValueError:
+        print("数字格式错误")
+        return
+
+    match (op, b):
+        case ("/", y) if y == 0:
+            print("运算失败，除数为零")
+        case ("+", _):
+            print(f"{a + b}")
+        case ("-", _):
+            print(f"{a - b}")
+        case ("*", _):
+            print(f"{a * b}")
+        case ("/", _):
+            print(f"{a / b}")
+        case _:
+            print("未知运算符")
+
+calc_guard()

@@ -107,13 +107,13 @@ deep1[0][0] = 999
 print("深拷贝deepcopy：n2", n2, "deep", deep1) #原数据不受影响
 print("-"*50)
 
-
+# ========================== 排序 =============================
 num_sort = [5,2,9,1]
 num_sort.sort()                          # sort原地升序
 print("sort升序：", num_sort)
 num_sort.sort(reverse=True)              # sort原地降序
 print("sort降序：", num_sort)
-
+# ========================== 反转 =============================
 num_rev = [1,2,3,4]
 num_rev.reverse()                        # reverse原地反转
 print("reverse原地反转：", num_rev)
